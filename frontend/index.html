@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaMind | Home</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+<!-- ===== CIRCUIT BACKGROUND CANVAS ===== -->
+<canvas id="circuit-canvas"></canvas>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">NovaMind</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="teacher.html">AI Teacher</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">About</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero-section text-center d-flex flex-column justify-content-center align-items-center">
+  <h1 class="nova-title">NOVA MIND</h1>
+
+  <h3 class="tagline">The AI Teacher</h3>
+
+  <p class="subtext">Your personal study AI companion</p>
+
+  <a href="teacher.html" class="start-btn mt-4">Get Started</a>
+</section>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- ====================== STYLE ====================== -->
+<style>
+/* ======== COLOR SETUP ======== */
+:root {
+  --dark-bg: rgb(49, 54, 71);
+  --mid-dark: rgb(67, 86, 99);
+  --light-green: rgb(163, 176, 135);
+  --cream: rgb(255, 248, 212);
+  --white: #ffffff;
+}
+
+/* PAGE BACKGROUND */
+body {
+  background: var(--dark-bg);
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+/* === CANVAS BEHIND === */
+#circuit-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+/* NAVBAR */
+.navbar {
+  position: relative;
+  z-index: 10;
+}
+
+/* ======== HERO SECTION ======== */
+.hero-section {
+  min-height: calc(100vh - 70px);
+  padding-top: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* MAIN TITLE — NOVA MIND */
+.nova-title {
+  font-size: 15vw;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 3px var(--light-green);
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+/* SMALL HEADING — The AI Teacher */
+.tagline {
+  font-size: 2vw;
+  color: var(--cream);
+  transition: transform 0.15s;
+}
+
+/* SUBTEXT */
+.subtext {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  color: var(--white);
+}
+
+/* ======== BUTTON ======== */
+.start-btn {
+  background: var(--light-green);
+  color: var(--dark-bg);
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.start-btn:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 18px rgba(163, 176, 135, 0.45);
+}
+
+/* ======== CUSTOM CURSOR ======== */
+.cursor {
+  width: 30px;
+  height: 30px;
+  background: var(--cream);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s;
+  mix-blend-mode: difference;
+  z-index: 9999;
+}
+</style>
+
+
+<!-- ====================== SCRIPT ====================== -->
+<script>
+// ======== CUSTOM CURSOR ========
+const cursor = document.createElement("div");
+cursor.classList.add("cursor");
+document.body.appendChild(cursor);
+
+document.addEventListener("mousemove", (e) => {
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+// ======== TAGLINE TILT ========
+const tagline = document.querySelector(".tagline");
+document.addEventListener("mousemove", (e) => {
+  const x = (window.innerWidth / 2 - e.clientX) / 50;
+  tagline.style.transform = `rotateY(${x}deg)`;
+});
+
+
+
+// ======== CIRCUIT LINES + GLOWING PARTICLES ========
+const canvas = document.getElementById("circuit-canvas");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.onresize = resize;
+
+const lines = [];
+const particles = [];
+
+const lineColor = "rgba(200, 255, 200, 0.10)";
+const particleColor = "#d4ffb2";
+
+let count = 14;
+
+// create horizontal lines
+for (let i = 0; i < count; i++) {
+  let y = Math.random() * canvas.height;
+  lines.push({ y });
+  particles.push({
+    x: Math.random() * canvas.width,
+    y,
+    speed: 0.4 + Math.random() * 0.6
+  });
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // draw circuit lines
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 1;
+
+  lines.forEach((l) => {
+    ctx.beginPath();
+    ctx.moveTo(0, l.y);
+    ctx.lineTo(canvas.width, l.y);
+    ctx.stroke();
+  });
+
+  // particles
+  particles.forEach((p) => {
+    p.x += p.speed;
+
+    if (p.x > canvas.width) p.x = 0;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = particleColor;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>

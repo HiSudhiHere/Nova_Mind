@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About — NovaMind</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+/* ============================================================
+   THEME
+============================================================ */
+:root{
+  --bg-dark: #293041;
+  --line-soft: rgba(200,255,200,.14);
+  --accent: #a3b087;
+  --accent2:#74ffb7;
+  --text:#eaf2ff;
+  --text-dim:#c8d4ea;
+  --cream:#fff8d4;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --badge-beta:#FFD36E;
+}
+
+/* ============================================================
+   BASE + TRANSITION
+============================================================ */
+html,body{height:100%}
+body{
+  margin:0;
+  background: var(--bg-dark);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  overflow-x:hidden;
+  opacity:0;
+  transform: translateY(8px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+body.ready{
+  opacity:1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   BACKGROUND LAYERS
+============================================================ */
+.svg-circuit{
+  position:fixed; inset:0; z-index:-5; opacity:.08; pointer-events:none;
+}
+.svg-circuit svg{ width:100%; height:100% }
+.svg-circuit .dash{
+  stroke: #b6ffd6;
+  stroke-opacity:.5;
+  stroke-width:1;
+  stroke-dasharray:6 10;
+  animation: dashMove 18s linear infinite;
+}
+@keyframes dashMove{ to{ stroke-dashoffset: -400 } }
+
+#circuit-canvas{
+  position:fixed; inset:0; z-index:-4; width:100%; height:100%; pointer-events:none;
+}
+
+/* ============================================================
+   BLOB + SPOTLIGHT (BIG + VISIBLE)
+============================================================ */
+#spotlight{
+  position:fixed; inset:0; z-index:-3; pointer-events:none;
+  background: radial-gradient(260px 260px at 50% 50%, rgba(255,255,255,.06), transparent 60%);
+  mix-blend-mode: soft-light;
+  transition: background-size .2s ease;
+}
+
+#blob{
+  width:1200px;
+  height:1200px;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  border-radius:50%;
+  background: radial-gradient(circle at 50% 50%, var(--accent2), transparent 70%);
+  filter:blur(200px);
+  opacity:.8;
+  z-index:-2;
+  transition: transform .25s ease, opacity .25s ease, filter .25s ease;
+}
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+.navbar{
+  background: rgba(22,25,36,.35);
+  backdrop-filter: blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  z-index:5;
+}
+.navbar-brand, .nav-link{ color: var(--cream)!important; font-weight:600 }
+.nav-link:hover{ color: var(--accent2)!important }
+
+/* ============================================================
+   HEADERS / BLOCKS
+============================================================ */
+.section-title{
+  text-align:center; margin-top:40px; margin-bottom:22px;
+  font-size:2.2rem; font-weight:800; color:var(--accent);
+  text-shadow: 0 0 10px rgba(163,176,135,.35);
+  letter-spacing:.5px;
+}
+.overview{
+  width:min(980px,84%);
+  margin:auto;
+  background: linear-gradient( to bottom right, rgba(0,0,0,.28), rgba(0,0,0,.42) );
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:18px 26px;
+  box-shadow: var(--shadow);
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+}
+.overview:hover{
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+  border-color: rgba(167,255,200,.22);
+  transform: translateY(-2px);
+}
+.muted{color:var(--text-dim)}
+
+/* ============================================================
+   TIMELINE
+============================================================ */
+.timeline{
+  position:relative; width:min(980px,84%); margin:60px auto 90px;
+}
+
+/* center spine */
+.timeline::before{
+  content:""; position:absolute; left:50%; transform:translateX(-50%);
+  top:0; bottom:0; width:2px;
+  background: linear-gradient(to bottom, rgba(167,255,200,.25), rgba(167,255,200,.1));
+  box-shadow: 0 0 6px rgba(167,255,200,.35);
+}
+
+/* growing progress */
+.timeline-progress{
+  position:absolute; left:50%; transform:translateX(-50%);
+  top:0; width:3px; height:0;
+  background: linear-gradient(var(--accent2), #9dffd3);
+  box-shadow: 0 0 12px var(--accent2), 0 0 24px rgba(116,255,183,.45);
+  border-radius:3px;
+  transition: height .6s ease;
+}
+
+/* ============================================================
+   ITEMS
+============================================================ */
+.timeline-item{
+  width:50%;
+  padding:26px 20px;
+  position:relative;
+  opacity:0;
+  transform: translateY(40px) scale(.98);
+  transition: all .6s cubic-bezier(.2,.65,.2,1);
+  will-change: transform, opacity;
+}
+.timeline-item.visible{
+  opacity:1; transform: translateY(0) scale(1);
+}
+
+/* FIXED LEFT / RIGHT ORDER ✅ */
+.left{
+  text-align:right;
+  direction:rtl;
+}
+.right{
+  text-align:left;
+  margin-left:50%;
+  direction:ltr;
+}
+
+/* FINAL CENTER ITEM LOWER ✅ */
+.timeline-item.center{
+  width:100%;
+  text-align:center;
+  margin-left:0;
+  margin-top:100px;
+}
+
+/* ============================================================
+   TIMELINE POINTER RESTORED
+============================================================ */
+.timeline-dot{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background: var(--accent2);
+  position:absolute;
+  top: 50%;
+  box-shadow:
+    0 0 16px var(--accent2),
+    0 0 30px rgba(116,255,183,.8);
+  animation: nodePulse 2.2s ease-in-out infinite;
+  z-index:2;
+}
+@keyframes nodePulse{
+  0%,100%{ box-shadow: 0 0 8px var(--accent2), 0 0 16px rgba(116,255,183,.45) }
+  50%{ box-shadow: 0 0 18px var(--accent2), 0 0 34px rgba(116,255,183,.75) }
+}
+
+.timeline-connector{
+  position:absolute;
+  top: 50%;
+  height:2px;
+  width:80px;
+  background: var(--accent2);
+  box-shadow:
+    0 0 10px rgba(116,255,183,.6),
+    0 0 20px rgba(116,255,183,.3);
+  z-index:1;
+}
+
+.left .timeline-dot     { right:-8px; }
+.left .timeline-connector{ right:-88px; }
+
+.right .timeline-dot     { left:-8px; }
+.right .timeline-connector{ left:-88px; }
+
+/* center item connector hidden */
+.timeline-item.center .timeline-connector{ display:none }
+
+/* ============================================================
+   FEATURE BOX
+============================================================ */
+.feature-box{
+  background: linear-gradient( to bottom right, rgba(0,0,0,.34), rgba(0,0,0,.56) );
+  border:1px solid rgba(255,255,255,.09);
+  border-left:4px solid var(--accent);
+  padding:16px;
+  border-radius:14px;
+  display:inline-block;
+  width:80%;
+  cursor:pointer;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.feature-box:hover{
+  transform: translateY(-2px);
+  border-left-color: var(--accent2);
+  box-shadow: 0 8px 24px rgba(0,0,0,.45),0 0 14px rgba(116,255,183,.25);
+}
+.feature-details{
+  margin-top:8px; font-size:.95rem; display:none; color: var(--text-dim);
+}
+.feature-box.active .feature-details{ display:block }
+
+.badge{
+  font-size:.72rem; background: var(--accent); color:#000;
+  margin-bottom:6px; font-weight:800; border-radius:6px;
+  padding:.35rem .5rem;
+}
+.badge.future{ background:#575c6a; color:var(--cream) }
+.badge.beta{ background:var(--badge-beta); color:#222 }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 992px){
+  .timeline::before, .timeline-progress{ left:18px; transform:none }
+  .timeline-item, .right{ width:100%; margin-left:0; text-align:left }
+  .timeline-dot{ left:10px!important; right:auto!important }
+  .timeline-connector{ left:26px!important; right:auto!important; width:50px }
+  .feature-box{ width:calc(100% - 70px); margin-left:58px }
+  .timeline-item.center .feature-box{ margin-left:58px; width:calc(100% - 70px) }
+}
+  </style>
+</head>
+
+<body>
+  <!-- animated SVG -->
+  <div class="svg-circuit">
+    <svg preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="grid" width="140" height="140" patternUnits="userSpaceOnUse">
+          <path d="M0 70 H140 M70 0 V140" class="dash" fill="none"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"></rect>
+    </svg>
+  </div>
+
+  <canvas id="circuit-canvas"></canvas>
+  <div id="spotlight"></div>
+  <div id="blob"></div>
+
+  <nav class="navbar navbar-expand-lg px-3">
+    <a class="navbar-brand" href="index.html">NovaMind</a>
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="teacher.html">AI Teacher</a>
+      <a class="nav-link active" href="#">About</a>
+    </div>
+  </nav>
+
+  <h2 class="section-title">About NovaMind</h2>
+
+  <div class="overview">
+    <p><b>NovaMind</b> is an AI–powered learning companion designed to transform the way students learn.</p>
+    <p>Upload your textbook pages, class notes, or syllabus, and NovaMind extracts the text and automatically generates structured topic-wise notes.</p>
+    <p>You can then ask questions, receive AI-powered explanations, and soon talk to NovaMind as if you are in a real classroom.</p>
+    <p class="muted">The goal is to make studying intuitive, visual, and interactive.</p>
+  </div>
+
+  <h2 class="section-title">Features (Now + Upcoming)</h2>
+
+  <div class="timeline">
+
+    <div class="timeline-progress"></div>
+
+    <!-- DONE ITEMS -->
+    <div class="timeline-item left">
+      <div class="feature-box">
+        <span class="badge">DONE ✅</span>
+        <h5><i class="fa-solid fa-file-arrow-up"></i> Upload Notes</h5>
+        <div class="feature-details">Accepts PDF and images, extracting text automatically.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item right">
+      <div class="feature-box">
+        <span class="badge">DONE ✅</span>
+        <h5><i class="fa-solid fa-list"></i> Topic-Wise Notes</h5>
+        <div class="feature-details">AI structures text into headings, bullets, examples, and definitions.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="feature-box">
+        <span class="badge">DONE ✅</span>
+        <h5><i class="fa-solid fa-question"></i> Ask Questions</h5>
+        <div class="feature-details">Ask anything related to your uploaded notes.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item right">
+      <div class="feature-box">
+        <span class="badge">DONE ✅</span>
+        <h5><i class="fa-solid fa-chevron-down"></i> Collapsible Sections</h5>
+        <div class="feature-details">Click headings to expand/hide sections.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="feature-box">
+        <span class="badge">DONE ✅</span>
+        <h5><i class="fa-solid fa-download"></i> Download Notes</h5>
+        <div class="feature-details">Export AI-generated notes to PDF.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <!-- ADDED — BETA -->
+    <div class="timeline-item right">
+      <div class="feature-box">
+        <span class="badge beta">ADDED • beta</span>
+        <h5><i class="fa-solid fa-volume-high"></i> Text-to-Speech</h5>
+        <div class="feature-details">Voice output added in preview mode. Stability & tone improving.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="feature-box">
+        <span class="badge beta">ADDED • beta</span>
+        <h5><i class="fa-solid fa-microphone"></i> Speech-to-Text</h5>
+        <div class="feature-details">Microphone input added in preview. Accuracy tuning ongoing.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <!-- UPCOMING -->
+    <div class="timeline-item right">
+      <div class="feature-box">
+        <span class="badge future">UPCOMING ⭐</span>
+        <h5><i class="fa-solid fa-wand-magic-sparkles"></i> Better User Interface</h5>
+        <div class="feature-details">Refined layouts, dark-mode polish, improved accessibility.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="feature-box">
+        <span class="badge future">UPCOMING ⭐</span>
+        <h5><i class="fa-solid fa-user-astronaut"></i> Generate a Full Avatar</h5>
+        <div class="feature-details">Personalized teacher avatar with selectable personality.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item right">
+      <div class="feature-box">
+        <span class="badge future">UPCOMING ⭐</span>
+        <h5><i class="fa-solid fa-video"></i> Build Zoom Simulation</h5>
+        <div class="feature-details">Simulated group classes with tiles & basic chat.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="feature-box">
+        <span class="badge future">UPCOMING ⭐</span>
+        <h5><i class="fa-solid fa-chalkboard"></i> Build Full Whiteboard Animations</h5>
+        <div class="feature-details">Drawings, math formulas & steps animated visually.</div>
+      </div>
+      <div class="timeline-connector"></div>
+      <div class="timeline-dot"></div>
+    </div>
+
+    <!-- FINAL CENTER ITEM -->
+    <div class="timeline-item center">
+      <div class="feature-box">
+        <span class="badge future">UPCOMING ⭐</span>
+        <h5><i class="fa-solid fa-head-side-virus"></i> Real Lip-Sync Avatar Teacher</h5>
+        <div class="feature-details">High-fidelity mouth movement & expression matching speech.</div>
+      </div>
+      <div class="timeline-dot"></div>
+    </div>
+
+  </div>
+
+<script>
+/* ================= PAGE TRANSITION ================= */
+window.addEventListener('load',()=> document.body.classList.add('ready'));
+
+/* ================= BACKGROUND ANIM ================= */
+const canvas=document.getElementById('circuit-canvas');
+const ctx=canvas.getContext('2d');
+let W=0,H=0;
+function resize(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener('resize',resize);
+
+const lines=[],particles=[];
+for(let i=0;i<14;i++){
+  const y=Math.random()*H;
+  lines.push({y});
+  particles.push({x:Math.random()*W,y,speed:.25+Math.random()*.5});
+}
+function drawBG(){
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line-soft');
+  ctx.lineWidth=1;
+  lines.forEach(l=>{
+    ctx.beginPath();
+    ctx.moveTo(0,l.y);
+    ctx.lineTo(W,l.y);
+    ctx.stroke();
+  });
+  const pColor=getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim();
+  particles.forEach(p=>{
+    p.x+=p.speed;
+    if(p.x>W)p.x=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fillStyle=pColor;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawBG);
+}
+drawBG();
+
+/* ================= CURSOR BLOB ================= */
+const spotlight=document.getElementById('spotlight');
+const blob=document.getElementById('blob');
+let mouseX=W/2,mouseY=H/2,blobX=mouseX,blobY=mouseY,spotSize=260;
+function loop(){
+  blobX+=(mouseX-blobX)*0.12;
+  blobY+=(mouseY-blobY)*0.12;
+  blob.style.transform=`translate(${blobX-600}px,${blobY-600}px)`;
+  spotlight.style.background=`radial-gradient(${spotSize}px ${spotSize}px at ${mouseX}px ${mouseY}px, rgba(255,255,255,.06), transparent 60%)`;
+  requestAnimationFrame(loop);
+}
+loop();
+window.addEventListener('mousemove',e=>{
+  mouseX=e.clientX; mouseY=e.clientY;
+});
+
+/* ================= TIMELINE REVEAL ================= */
+const items=[...document.querySelectorAll('.timeline-item')];
+const progress=document.querySelector('.timeline-progress');
+function onScrollReveal(){
+  const vh=window.innerHeight;
+  let max=-1;
+  items.forEach((it,i)=>{
+    const r=it.getBoundingClientRect();
+    if(r.top<vh-80){
+      it.classList.add('visible');
+      max=i;
+    }
+  });
+  if(max>=0){
+    const last=items[max];
+    const base=document.querySelector('.timeline').getBoundingClientRect();
+    const h=(last.getBoundingClientRect().top-base.top)+(last.offsetHeight*.3);
+    progress.style.height=Math.max(0,h)+'px';
+  }
+}
+window.addEventListener('scroll',onScrollReveal);
+onScrollReveal();
+
+/* ================= EXPAND + TILT ================= */
+function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+document.querySelectorAll('.feature-box').forEach(box=>{
+  box.addEventListener('click',()=> box.classList.toggle('active'));
+  box.addEventListener('mousemove',e=>{
+    const r=box.getBoundingClientRect();
+    const cx=r.left+r.width/2;
+    const cy=r.top+r.height/2;
+    const dx=(e.clientX-cx)/(r.width/2);
+    const dy=(e.clientY-cy)/(r.height/2);
+    const ry=clamp(dx*8,-8,8);
+    const rx=clamp(-dy*8,-8,8);
+    box.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+  });
+  box.addEventListener('mouseleave',()=> box.style.transform='rotateX(0) rotateY(0)');
+});
+
+/* ================= PARALLAX ================= */
+window.addEventListener('scroll',()=>{
+  canvas.style.transform=`translateY(${window.scrollY*0.08}px)`;
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Python cache and virtual environments
+__pycache__/
+*.pyc
+env/
+venv/
+
+# System and editor files
+.DS_Store
+*.log
+
+# Uploads or temporary files
+uploaded.pdf
+uploaded.png
+uploaded.jpg
+
+# VS Code settings (optional)
+.vscode/
+
+# Render/Build artifacts
+*.sqlite3
+*.db

@@ -1,0 +1,22 @@
+#AiPart{
+    background-color: 313647;
+    font: rgb(163, 176, 135);
+}
+body{
+    background-color: 435663;
+}
+button{
+    background-color: rgb(255, 248, 212);
+    color:rgb(163, 176, 135);
+}
+
+.ai-bubble.speaking {
+  animation: pulseSpeak 1s infinite;
+  box-shadow: 0 0 20px var(--accent);
+}
+
+@keyframes pulseSpeak {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
