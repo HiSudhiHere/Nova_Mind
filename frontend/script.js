@@ -1,8 +1,7 @@
 console.log("✅ script.js loaded");
 
 /* BACKEND URL */
-const BACKEND_URL = "https://novamind-ujxn.onrender.com";
-
+const BACKEND_URL = "https://nova-mind.onrender.com";
 
 /* Elements */
 const uploadBtn = document.getElementById("uploadBtn");
