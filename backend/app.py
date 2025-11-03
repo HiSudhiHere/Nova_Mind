@@ -215,6 +215,9 @@ QUESTION:
         print("❌ Gemini Error:", e)
         return jsonify({"error": "AI failed"}), 500
 
+@app.route("/")
+def home():
+    return "✅ NovaMind backend running!"
 
 # ============================================================
 # ✅ Main
